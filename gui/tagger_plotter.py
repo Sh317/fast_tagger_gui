@@ -1077,4 +1077,4 @@ def export_data(n_clicks):
 
 
 if __name__ == "__main__":
-    app.run(port="8070", debug=False)
+    app.run(port="8070", debug=False, dev_tools_silence_routes_logging = True)

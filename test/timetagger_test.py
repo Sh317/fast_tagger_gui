@@ -1,8 +1,7 @@
-
 import sys
-father_path = "C:/Users/MITBeamBox_01/Desktop/SOFTWARE/Tagger/TW_DAQ/fast_tagger_gui/test"
+father_path = "C:/Users/MITBeamBox_01/Desktop/SOFTWARE/Tagger/TW_DAQ"
 sys.path.append(father_path)
-from tag_interface import Tagger
+from fast_tagger_gui.src.tag_interface import Tagger
 
 def test_tagger():
     tagger = Tagger()

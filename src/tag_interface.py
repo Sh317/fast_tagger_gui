@@ -98,6 +98,7 @@ class Tagger():
                     for d in data:
                         _t = time.time() # -> Gives the time in seconds since the epoch as a floating point number
                         # d has:  [packet_number, events, channel, flops since last trigger]
+                        print(f"channel: {d[2]}")
                         if d[2] == -1: # If the d is a trigger signal we update the last trigger time
                             d[-1] = 0
                             d.append(_t)
@@ -112,6 +113,7 @@ class Tagger():
                         return new_data, new_triggers, new_events
                     return new_data # [packet_number, events, channel, time_offset since last trigger]
             elif status == 1:  # no trigger seen yet, go to sleep for a bit and try again
+                # print('no trigger seen yet, going to sleep')
                 time.sleep(0.0001)
             else:
                 raise ValueError

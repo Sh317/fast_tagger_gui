@@ -56,7 +56,7 @@ modified_settings = get_card_settings()
 STOP_TIME_WINDOW = modified_settings.get("tof_end", 20e-6)
 INIT_TIME = modified_settings.get("tof_start", 1e-6)
 CHANNEL_LEVEL = modified_settings.get("channel_level", -0.5)
-TRIGGER_LEVEL = modified_settings.get("trigger_level", -0.5)
+TRIGGER_LEVEL = modified_settings.get("trigger_level", -0.1)
 SAVING_FORMAT = modified_settings.get("data_format", "parquet")
 SAVING_FILE = modified_settings.get("saving_file", "data.parquet")
 
@@ -112,6 +112,7 @@ def create_saving_path(folder_location, saving_format, label="scan_"):
 def main_loop(tagger, data_name, voltage_reader, wavenumber_reader, spectrometer_reader):
     tagger.set_trigger_falling()
     tagger.set_trigger_level(float(TRIGGER_LEVEL))
+    print(f"Trigger level set to {TRIGGER_LEVEL}")
     tagger.start_reading()
     event_rate = 0.
     alpha = 0.2
@@ -122,8 +123,13 @@ def main_loop(tagger, data_name, voltage_reader, wavenumber_reader, spectrometer
     #     print(f"Error reading spectrometer: {e}")
     #     spectrometer_reader = None
     while True:
+        # try:
+        #     data, new_triggers, new_events = tagger.get_data(return_splitted=True)
+        # except Exception as e:
+        #     print(f"Error getting data from tagger: {e}")
+        #     time.sleep(0.5)
+        #     continue
         data, new_triggers, new_events = tagger.get_data(return_splitted=True)
-        print(new_events)
         time_now = time.time() 
         len_triggers = len(new_triggers)
         if len_triggers > 0:
@@ -149,10 +155,15 @@ def main_loop(tagger, data_name, voltage_reader, wavenumber_reader, spectrometer
             delta_t_total = time_now - i_time
             try:
                 trigger_rate = new_triggers[-1][0] / (delta_t_total)
+                # print("Trigger number:", new_triggers[-1][0])
+                # print("time passed:", delta_t_total)
+                print("Trigger rate:", trigger_rate)
             except ZeroDivisionError:
                 trigger_rate = 0.000
             write_to_influxdb(new_events, data_name, voltage, wavenumbers, spectr, trigger_rate = trigger_rate, event_rate=event_rate)
-            event_rate = ((1 - alpha) * ((len(new_events) * trigger_rate) / len_triggers) + alpha * event_rate) 
+            event_rate = ((1 - alpha) * ((len(new_events) * trigger_rate) / len_triggers) + alpha * event_rate)
+            print(f"Event rate: {event_rate:.2f} Hz")
+            # print(f"length of new events: {len(new_events)}")
         time.sleep(0.1)
 
 if __name__ == "__main__":

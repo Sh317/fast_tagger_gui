@@ -1,4 +1,4 @@
-from ..scripts.run_scan import Tagger
+from tag_interface import Tagger
 
 def test_tagger():
     tagger = Tagger()
